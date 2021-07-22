@@ -100,7 +100,7 @@ public class UserServiceElasticSearch implements UserRepositoryElasticSearch {
         return restHighLevelClient.bulk(request, options);
     }
 
-    public void teste(User user) {
+    public void delete(User user) {
         userRepository.delete(user);
     }
 

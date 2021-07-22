@@ -41,7 +41,7 @@ public class UserController {
 
     @DeleteMapping("/delete")
     public void delete (@RequestBody User user) {
-         userService.teste(user);
+         userService.delete(user);
     }
 
     @PutMapping("/update")
