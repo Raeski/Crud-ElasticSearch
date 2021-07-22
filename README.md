@@ -22,8 +22,10 @@ Crud utilizando Spring Boot e ElasticSearch, para aprendizado.
 1. Pegue o link do repositório https://github.com/Raeski/crud-place.git
 2. Clone o repo
    ```sh
+   
    git clone https://github.com/Raeski/Crud-ElasticSearch
-   ``
+   
+   
 3. No terminal execute docker-compose up (dentro do diretório do projeto)
 
 4. No insomnia teste os endpoins no localhost:8080
