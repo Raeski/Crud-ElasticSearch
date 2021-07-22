@@ -47,14 +47,14 @@ public class UserServiceElasticSearch implements UserRepositoryElasticSearch {
     public SearchResponse search(SearchQueryDto searchQueryDto) throws IOException{
         SearchRequest searchRequest = Requests.searchRequest(INDEX_NAME);
 
-        BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
-        //      .should(QueryBuilders.matchQuery("name", searchQueryDto.getQuery()));
+        BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery()
+              .should(QueryBuilders.matchQuery("name", searchQueryDto.getQuery()))
+              .should(QueryBuilders.matchQuery("id", searchQueryDto.getQuery()));
         if(searchQueryDto.getFilter() != null) {
             FilterRequestDto filter = searchQueryDto.getFilter();
             if (filter.getMatch() != null) {
                 for (String keyToFilter : filter.getMatch().keySet()) {
                     Object valueToFilter = filter.getMatch().get(keyToFilter).toString().toLowerCase();
-
                     boolQueryBuilder.filter(QueryBuilders.termQuery(keyToFilter, valueToFilter));
                 }
             }
