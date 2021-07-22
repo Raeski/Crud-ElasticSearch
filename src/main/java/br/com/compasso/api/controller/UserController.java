@@ -22,8 +22,6 @@ public class UserController {
     @Autowired
     public UserServiceElasticSearch userService;
 
-
-
     @PostMapping("/bulk")
     public BulkResponse addUsers(@RequestBody List<User> userList) throws IOException{
         return userService.saveAll(userList);
@@ -39,9 +37,9 @@ public class UserController {
         return userService.save(user);
     }
 
-    @DeleteMapping("/delete")
-    public void delete (@RequestBody User user) {
-         userService.delete(user);
+    @DeleteMapping(path = "/{id}")
+    public void delete (@PathVariable Long id) {
+         userService.delete(id);
     }
 
     @PutMapping("/update")

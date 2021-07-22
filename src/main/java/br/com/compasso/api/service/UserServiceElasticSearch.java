@@ -47,9 +47,9 @@ public class UserServiceElasticSearch implements UserRepositoryElasticSearch {
     public SearchResponse search(SearchQueryDto searchQueryDto) throws IOException{
         SearchRequest searchRequest = Requests.searchRequest(INDEX_NAME);
 
-        BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery()
-              .should(QueryBuilders.matchQuery("name", searchQueryDto.getQuery()))
-              .should(QueryBuilders.matchQuery("id", searchQueryDto.getQuery()));
+        BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
+//              .should(QueryBuilders.matchQuery("name", searchQueryDto.getQuery()))
+//              .should(QueryBuilders.matchQuery("id", searchQueryDto.getQuery()));
         if(searchQueryDto.getFilter() != null) {
             FilterRequestDto filter = searchQueryDto.getFilter();
             if (filter.getMatch() != null) {
@@ -100,8 +100,8 @@ public class UserServiceElasticSearch implements UserRepositoryElasticSearch {
         return restHighLevelClient.bulk(request, options);
     }
 
-    public void delete(User user) {
-        userRepository.delete(user);
+    public void delete(Long id) {
+        userRepository.deleteById(id);
     }
 
     public User update(User user) {
@@ -114,8 +114,5 @@ public class UserServiceElasticSearch implements UserRepositoryElasticSearch {
         }
         return user;
     }
-
-
-
 
 }
