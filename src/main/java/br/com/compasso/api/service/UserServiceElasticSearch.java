@@ -20,6 +20,8 @@ import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -45,7 +47,7 @@ public class UserServiceElasticSearch implements UserRepositoryElasticSearch {
     @Override
     public SearchResponse search(SearchQueryDto searchQueryDto) throws IOException{
         SearchRequest searchRequest = Requests.searchRequest(INDEX_NAME);
-        if(validateSearchUser(searchQueryDto) == false)
+        if(validateFieldsSearchUser(searchQueryDto) == false)
             throw new IOException("Faltou colocar campo para pesquisa");
         BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery()
               .should(QueryBuilders.matchQuery("name", searchQueryDto.getQuery()))
@@ -101,18 +103,22 @@ public class UserServiceElasticSearch implements UserRepositoryElasticSearch {
         userRepository.deleteById(id);
     }
 
-    public User update(User user) {
+    public ResponseEntity<User> update( User user ) {
         Optional<User> user1 = userRepository.findById(user.getId());
         if(!user1.isEmpty()){
+            if(validateFieldsUpdateUser(user1, user)) {
+                return new ResponseEntity("O campo CPF não pode ser alterado!", HttpStatus.BAD_REQUEST);
+            }
             user1.get().setId(user.getId());
             user1.get().setName(user.getName());
             user1.get().setCpf(user.getCpf());
             userRepository.save(user1.get());
+            return new ResponseEntity<>( user, HttpStatus.OK );
         }
-        return user;
+        return new ResponseEntity<>( HttpStatus.NOT_FOUND );
     }
 
-    public boolean validateSearchUser(SearchQueryDto searchQueryDto) {
+    private boolean validateFieldsSearchUser(SearchQueryDto searchQueryDto) {
         if(searchQueryDto.getFilter().getMatch().containsValue("") || searchQueryDto.getFilter().getMatch().isEmpty() ) {
             return false;
         } else{
@@ -120,5 +126,12 @@ public class UserServiceElasticSearch implements UserRepositoryElasticSearch {
         }
     }
 
+    private boolean validateFieldsUpdateUser(Optional<User> newUser, User user) {
+
+        if ( !newUser.get().getCpf().equalsIgnoreCase(user.getCpf()) ) {
+            return true;
+        }
+        return false;
+    }
 
 }
