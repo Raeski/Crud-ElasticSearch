@@ -42,26 +42,23 @@ public class UserServiceElasticSearch implements UserRepositoryElasticSearch {
     UserRepository userRepository;
 
 
-
     @Override
     public SearchResponse search(SearchQueryDto searchQueryDto) throws IOException{
         SearchRequest searchRequest = Requests.searchRequest(INDEX_NAME);
-
-        BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
-//              .should(QueryBuilders.matchQuery("name", searchQueryDto.getQuery()))
-//              .should(QueryBuilders.matchQuery("id", searchQueryDto.getQuery()));
-        if(searchQueryDto.getFilter() != null) {
+        if(validateSearchUser(searchQueryDto) == false)
+            throw new IOException("Faltou colocar campo para pesquisa");
+        BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery()
+              .should(QueryBuilders.matchQuery("name", searchQueryDto.getQuery()))
+              .should(QueryBuilders.matchQuery("id", searchQueryDto.getQuery()));
+        if(searchQueryDto.getQuery() != null) {
             FilterRequestDto filter = searchQueryDto.getFilter();
-            if (filter.getMatch() != null) {
                 for (String keyToFilter : filter.getMatch().keySet()) {
                     Object valueToFilter = filter.getMatch().get(keyToFilter).toString().toLowerCase();
-                    boolQueryBuilder.filter(QueryBuilders.termQuery(keyToFilter, valueToFilter));
-                }
-            }
+                    boolQueryBuilder.filter(QueryBuilders.termQuery(keyToFilter, valueToFilter)); }
         }
         SearchSourceBuilder searchSourceBuilder = SearchSourceBuilder.searchSource()
-                .from(searchQueryDto.getPage() * searchQueryDto.getSize())
-                .size(searchQueryDto.getSize())
+                .from(0)
+                .size(5)
                 .query(boolQueryBuilder);
         searchRequest.source(searchSourceBuilder);
         return restHighLevelClient.search(searchRequest, RequestOptions.DEFAULT);
@@ -114,5 +111,14 @@ public class UserServiceElasticSearch implements UserRepositoryElasticSearch {
         }
         return user;
     }
+
+    public boolean validateSearchUser(SearchQueryDto searchQueryDto) {
+        if(searchQueryDto.getFilter().getMatch().containsValue("") || searchQueryDto.getFilter().getMatch().isEmpty() ) {
+            return false;
+        } else{
+            return true;
+        }
+    }
+
 
 }
